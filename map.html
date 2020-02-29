@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://d3js.org/d3-array.v1.min.js"></script>
+<script src="https://d3js.org/d3-geo.v1.min.js"></script>
+<body>
+<div id="my_dataviz"></div>
+</body>
+<script>
+
+  var width = 960, 
+      height = 1160;
+
+  var projection = d3.geoMercator()
+    .scale(4000000)
+    .translate([width / 2, height / 2]);
+
+  var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+  console.log("here")
+
+  let g = d3.json("map.geojson", function(error, NYC_MapInfo) {
+	console.log(NYC_MapInfo)
+    // after loading geojson, use d3.geo.centroid to find out 
+    // where you need to center your map
+    var center = d3.geo.centroid(NYC_MapInfo);
+    projection.center(center);
+
+    // now you can create new path function with 
+    // correctly centered projection
+    var path = d3.geo.path().projection(projection);
+
+    // and finally draw the actual polygons
+    svg.selectAll("path")
+      .data(NYC_MapInfo.features)
+      .enter()
+      .append("path")
+      .attr("d", path);
+  });
+
+	g.then(function(result){
+	
+    var center = d3.geoCentroid(result);
+	console.log(center)
+    projection.center(center);
+
+    // now you can create new path function with 
+    // correctly centered projection
+    var path = d3.geoPath().projection(projection);
+
+    // and finally draw the actual polygons
+    svg.selectAll("path")
+      .data(result.features)
+      .enter()
+      .append("path")
+      .attr("d", path)
+      .attr("id", function(d) {console.log(d.properties['name']); return d.properties['name'];})
+      .style("fill", function(d){ if(d.properties['name'] === 'Worcester Polytechnic Institute'){ return "none";} else {return "#00001f4f";}})
+    .style("stroke", function(d){ if(d.properties['name'] === 'Worcester Polytechnic Institute'){ return "red" ;} else {return "grey";}}) 
+})
+
+</script>
