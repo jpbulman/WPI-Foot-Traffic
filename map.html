@@ -55,9 +55,56 @@
       .enter()
       .append("path")
       .attr("d", path)
-      .attr("id", function(d) {console.log(d.properties['name']); return d.properties['name'];})
+      .attr("id", function(d) {console.log(d.properties['name']); return  d.properties['name'];})
       .style("fill", function(d){ if(d.properties['name'] === 'Worcester Polytechnic Institute'){ return "none";} else {return "#00001f4f";}})
     .style("stroke", function(d){ if(d.properties['name'] === 'Worcester Polytechnic Institute'){ return "red" ;} else {return "grey";}}) 
+d3.csv("responses.csv").then((data) => {
+    var myColor = d3.scaleLinear()
+        .range(["white", "steelblue"])
+        .domain([1, 5])
+
+    let locationAndTimeMap = {}
+    for (let i = 0; i < data.length; i++) {
+        const currentResponse = data[i]
+        for (key in currentResponse) {
+            if (key.includes("Other") || key === "Timestamp") {
+                continue
+            }
+            const currentBuilding = currentResponse[key]
+            if (currentBuilding in locationAndTimeMap) {
+                if (key in locationAndTimeMap[currentBuilding]) {
+                    locationAndTimeMap[currentBuilding][key] = locationAndTimeMap[currentBuilding][key] + 1
+                } else {
+                    locationAndTimeMap[currentBuilding][key] = 1
+                }
+            } else {
+                const toMake = {}
+                toMake[key] = 1
+                locationAndTimeMap[currentBuilding] = toMake
+            }
+        }
+    }
+	console.log(locationAndTimeMap)
+	buildings_info = []
+	for(key in locationAndTimeMap){
+		time_quant_pair = []
+		for(v in locationAndTimeMap[key]){
+			time_quant_pair.push([v, locationAndTimeMap[key][v]]);
+		}
+		buildings_info.push([key, time_quant_pair])
+	}
+	console.log(buildings_info)
+	for(building in buildings_info){
+		try{
+			let sel = d3.selectAll("[id='" + buildings_info[building][0] + "']")
+			sel.style("fill",  myColor(buildings_info[building][1][0][1]))
+			console.log(myColor(buildings_info[building][1][0][1]))
+		} catch {
+		console.log("#" + escape(buildings_info[building][0]))
+}
+	}
+
+})
 })
 
 </script>
