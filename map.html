@@ -18,10 +18,8 @@
   var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height);
-  console.log("here")
 
   let g = d3.json("map.geojson", function(error, NYC_MapInfo) {
-	console.log(NYC_MapInfo)
     // after loading geojson, use d3.geo.centroid to find out 
     // where you need to center your map
     var center = d3.geo.centroid(NYC_MapInfo);
@@ -38,9 +36,7 @@
       .append("path")
       .attr("d", path);
   });
-
 	g.then(function(result){
-	
     var center = d3.geoCentroid(result);
 	console.log(center)
     projection.center(center);
@@ -55,14 +51,18 @@
       .enter()
       .append("path")
       .attr("d", path)
-      .attr("id", function(d) {console.log(d.properties['name']); return  d.properties['name'];})
+      .attr("id", function(d) { return  d.properties['name'];})
       .style("fill", function(d){ if(d.properties['name'] === 'Worcester Polytechnic Institute'){ return "none";} else {return "#00001f4f";}})
     .style("stroke", function(d){ if(d.properties['name'] === 'Worcester Polytechnic Institute'){ return "red" ;} else {return "grey";}}) 
 d3.csv("responses.csv").then((data) => {
     var myColor = d3.scaleLinear()
         .range(["white", "steelblue"])
         .domain([1, 5])
-
+    let times = Object.keys(data[0])
+    times = times.filter((a) => a !== "Timestamp" && !a.includes("Other"))
+    times.forEach((d, i) => {
+        times[i] = d 
+   })
     let locationAndTimeMap = {}
     for (let i = 0; i < data.length; i++) {
         const currentResponse = data[i]
@@ -84,27 +84,43 @@ d3.csv("responses.csv").then((data) => {
             }
         }
     }
-	console.log(locationAndTimeMap)
 	buildings_info = []
 	for(key in locationAndTimeMap){
 		time_quant_pair = []
-		for(v in locationAndTimeMap[key]){
-			time_quant_pair.push([v, locationAndTimeMap[key][v]]);
+		for(v in times){
+			if(locationAndTimeMap[key][times[v]] > 0){
+			time_quant_pair.push([v, locationAndTimeMap[key][times[v]]]);
+		} else {
+			time_quant_pair.push([v,0])
+		}
 		}
 		buildings_info.push([key, time_quant_pair])
 	}
 	console.log(buildings_info)
+	function updateTheMap(buildings_info,i){
 	for(building in buildings_info){
 		try{
 			let sel = d3.selectAll("[id='" + buildings_info[building][0] + "']")
-			sel.style("fill",  myColor(buildings_info[building][1][0][1]))
-			console.log(myColor(buildings_info[building][1][0][1]))
+			sel.style("fill",  myColor(buildings_info[building][1][i][1]))
 		} catch {
-		console.log("#" + escape(buildings_info[building][0]))
-}
+		}
 	}
+	}
+ const duration = 4000;
+   let i = 0;
+   timer = d3.timer((elapsed) => {
+    i = Math.floor(elapsed * 12 / duration)
+    updateTheMap(buildings_info, i)
+    if (elapsed > duration ) {
+      timer.stop();
+    }
+  });
+	
+
+	})
+
 
 })
-})
+
 
 </script>
