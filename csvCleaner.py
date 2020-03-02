@@ -1,0 +1,8 @@
+text = open("responses.csv", "r")
+text = ''.join([i for i in text]).replace("Rubin Campus Center", "Campus Center").replace("Higgins Labs", "Higgins Laboratories").replace("Fuller Labs", "Fuller Laboratories")
+text = ''.join([i for i in text]).replace("Atwater Kent", "Atwater Kent Laboratories").replace("Gordon Library", "George C. Gordon Library")
+text = ''.join([i for i in text]).replace("Salisbury Hall", "Salisbury Laboratories").replace("Salisbury Labs", "Salisbury Laboratories")
+text = ''.join([i for i in text]).replace("Alden  Hall", "Alden Memorial").replace("East", "East Hall")
+x = open("output.csv","w")
+x.writelines(text)
+x.close()
