@@ -1,4 +1,18 @@
 <!DOCTYPE html>
+<style>
+    div.tooltip {
+        position: absolute;
+        text-align: center;
+        display: inline-block;
+        height: 14px;
+        padding: 7.5px;
+        font: 12px sans-serif;
+        background: lightsteelblue;
+        border: 0px;
+        border-radius: 8px;
+        pointer-events: none;
+    }
+</style>
 <meta charset="utf-8">
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script src="https://d3js.org/d3-array.v1.min.js"></script>
@@ -8,208 +22,4 @@
 <body>
     <div id="my_dataviz"></div>
 </body>
-<script>
-
-    var width = 960,
-        height = 1160;
-
-    var projection = d3.geoMercator()
-        .scale(4000000)
-        .translate([width / 2, height / 2]);
-
-    var svg = d3.select("body").append("svg")
-        .attr("width", width)
-        .attr("height", height);
-
-    let g = d3.json("map.geojson", function (error, NYC_MapInfo) {
-        // after loading geojson, use d3.geo.centroid to find out 
-        // where you need to center your map
-        var center = d3.geo.centroid(NYC_MapInfo);
-        projection.center(center);
-
-        // now you can create new path function with 
-        // correctly centered projection
-        var path = d3.geo.path().projection(projection);
-
-        // and finally draw the actual polygons
-        svg.selectAll("path")
-            .data(NYC_MapInfo.features)
-            .enter()
-            .append("path")
-            .attr("d", path);
-    });
-    g.then(function (result) {
-        var center = d3.geoCentroid(result);
-        console.log(center)
-        projection.center(center);
-
-        // now you can create new path function with 
-        // correctly centered projection
-        var path = d3.geoPath().projection(projection);
-
-        // and finally draw the actual polygons
-        svg.selectAll("path")
-            .data(result.features)
-            .enter()
-            .append("path")
-            .attr("d", path)
-            .attr("id", function (d) { return d.properties['name']; })
-            .style("fill", function (d) { if (d.properties['name'] === 'Worcester Polytechnic Institute') { return "none"; } else { return "#00001f4f"; } })
-            .style("stroke", function (d) { if (d.properties['name'] === 'Worcester Polytechnic Institute') { return "red"; } else { return "grey"; } })
-        d3.csv("output.csv").then((data) => {
-            var myColor = d3.scaleLinear()
-                .range(["white", "steelblue"])
-                .domain([1, 5])
-            let times = Object.keys(data[0])
-            times = times.filter((a) => a !== "Timestamp" && !a.includes("Other"))
-            times.forEach((d, i) => {
-                times[i] = d
-            })
-            let locationAndTimeMap = {}
-            for (let i = 0; i < data.length; i++) {
-                const currentResponse = data[i]
-                for (key in currentResponse) {
-                    if (key.includes("Other") || key === "Timestamp") {
-                        continue
-                    }
-                    const currentBuilding = currentResponse[key]
-                    if (currentBuilding in locationAndTimeMap) {
-                        if (key in locationAndTimeMap[currentBuilding]) {
-                            locationAndTimeMap[currentBuilding][key] = locationAndTimeMap[currentBuilding][key] + 1
-                        } else {
-                            locationAndTimeMap[currentBuilding][key] = 1
-                        }
-                    } else {
-                        const toMake = {}
-                        toMake[key] = 1
-                        locationAndTimeMap[currentBuilding] = toMake
-                    }
-                }
-            }
-            buildings_info = []
-            for (key in locationAndTimeMap) {
-                time_quant_pair = []
-                for (v in times) {
-                    if (locationAndTimeMap[key][times[v]] > 0) {
-                        time_quant_pair.push([v, locationAndTimeMap[key][times[v]]]);
-                    } else {
-                        time_quant_pair.push([v, 0])
-                    }
-                }
-                buildings_info.push([key, time_quant_pair])
-            }
-            // console.log(buildings_info)
-            function updateTheMap(buildings_info, i) {
-                for (building in buildings_info) {
-                    try {
-                        let sel = d3.selectAll("[id='" + buildings_info[building][0] + "']")
-                        sel.style("fill", myColor(buildings_info[building][1][i][1]))
-                    } catch {
-                    }
-                }
-            }
-
-            function generateRandomXorYForDataTime(data, timeKey, isX) {
-                const destinationName = data[timeKey]
-                if (destinationName === "Other or not listed" || destinationName === "Washburn") {
-                    return 0
-                }
-                const box = d3.select("[id='" + destinationName + "']").node().getBBox()
-                const startingVal = isX ? box.x : box.y
-                let randVal = (Math.random() * box.width) + startingVal
-                return randVal
-            }
-
-            svg.selectAll(".studentDots")
-                .data(data)
-                .enter()
-                .append("circle")
-                .attr("cx", (d) => {
-                    return generateRandomXorYForDataTime(d, "1pm to 2pm?", true)
-                    // const startingY = box.y
-                    // let randY = (Math.random() * box.width) + startingY
-
-                    // const str = document.getElementById(locationName).getAttribute("d")
-                    // var commands = str.split(/(?=[LMC])/);
-                    // var pointArrays = commands.map(function (d) {
-                    //     var pointsArray = d.slice(1, d.length).split(',');
-                    //     var pairsArray = [];
-                    //     for (var i = 0; i < pointsArray.length; i += 2) {
-                    //         pairsArray.push([+pointsArray[i], +pointsArray[i + 1]]);
-                    //     }
-                    //     return pairsArray;
-                    // });
-                    // console.log(pointArrays)
-                    // console.log(d3.polygonContains(d3.polygonHull(pointArrays), [0, 1]))
-                    // let i = 0
-                    // let pointArr = [randX, randY]
-                    // console.log(d3.polygonContains(d3.polygonHull(pointArrays), [712.8, 498]))
-                    // while (!d3.polygonContains(pointArrays, pointArr) && i < 100) {
-                    //     randX = (Math.random() * box.width) + startingX
-                    //     randY = (Math.random() * box.width) + startingY
-                    //     console.log(randX, randY, i)
-                    //     pointArr = [randX, randY]
-                    //     i++
-                    // }
-                    // return {
-                    //     cx: randX,
-                    //     cy: randY,
-                    //     r: 5,
-                    //     id: `p-${locationName}`
-                    // }
-                })
-                .attr("cy", (d) => {
-                    return generateRandomXorYForDataTime(d, "1pm to 2pm?", false)
-                })
-                .attr("r", 5)
-                .attr("data-currentLocation", (d) => {
-                    return d["1pm to 2pm?"]
-                })
-                .attr("class", "studentDots")
-                .attr("id", (data, index) => index)
-                .style("fill", "lime")
-                .style("opacity", ".75")
-                .style("stroke", "black")
-            // .attr("r", 5)
-
-
-            d3.selectAll(".studentDots")
-                .transition()
-                .duration(1000)
-                .attr("cx", (d, index) => {
-                    const currentLocation = d["1pm to 2pm?"]
-                    const destinationName = d["2pm to 3pm?"]
-                    if (currentLocation !== destinationName) {
-                        return generateRandomXorYForDataTime(d, "2pm to 3pm?", true)
-                    } else {
-                        return document.getElementById(index).getAttribute("cx")
-                    }
-                })
-                .attr("cy", (d, index) => {
-                    const currentLocation = d["1pm to 2pm?"]
-                    const destinationName = d["2pm to 3pm?"]
-                    if (currentLocation !== destinationName) {
-                        return generateRandomXorYForDataTime(d, "2pm to 3pm?", false)
-                    } else {
-                        return document.getElementById(index).getAttribute("cy")
-                    }
-                })
-
-            const duration = 12000;
-            let i = 0;
-            timer = d3.timer((elapsed) => {
-                i = Math.floor(elapsed * 12 / duration)
-                updateTheMap(buildings_info, i)
-                if (elapsed > duration) {
-                    timer.stop();
-                }
-            });
-
-
-        })
-
-
-    })
-
-
-</script>
+<script src="nodes.js"></script>
