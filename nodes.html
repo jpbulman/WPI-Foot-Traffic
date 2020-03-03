@@ -3,6 +3,7 @@
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script src="https://d3js.org/d3-array.v1.min.js"></script>
 <script src="https://d3js.org/d3-geo.v1.min.js"></script>
+<script src="https://d3js.org/d3-selection-multi.v1.min.js"></script>
 
 <body>
     <div id="my_dataviz"></div>
@@ -97,7 +98,7 @@
                 }
                 buildings_info.push([key, time_quant_pair])
             }
-            console.log(buildings_info)
+            // console.log(buildings_info)
             function updateTheMap(buildings_info, i) {
                 for (building in buildings_info) {
                     try {
@@ -108,21 +109,93 @@
                 }
             }
 
-            svg.selectAll(".studentCircles")
+            function generateRandomXorYForDataTime(data, timeKey, isX) {
+                const destinationName = data[timeKey]
+                if (destinationName === "Other or not listed" || destinationName === "Washburn") {
+                    return 0
+                }
+                const box = d3.select("[id='" + destinationName + "']").node().getBBox()
+                const startingVal = isX ? box.x : box.y
+                let randVal = (Math.random() * box.width) + startingVal
+                return randVal
+            }
+
+            svg.selectAll(".studentDots")
                 .data(data)
                 .enter()
                 .append("circle")
                 .attr("cx", (d) => {
-                    console.log(d)
-                    return d3.select("[id='" + "The Quad" + "']").node().getBBox().x + 20
-                    return d3.select("[id='" + "The Quad" + "']").node().getBBox().x + 20
-                })
-                .attr("cy", d3.select("[id='" + "The Quad" + "']").node().getBBox().y + 10)
-                .style("fill", "steelblue")
-                .style("stroke", "black")
-                .attr("r", 5)
+                    return generateRandomXorYForDataTime(d, "1pm to 2pm?", true)
+                    // const startingY = box.y
+                    // let randY = (Math.random() * box.width) + startingY
 
-            const duration = 4000;
+                    // const str = document.getElementById(locationName).getAttribute("d")
+                    // var commands = str.split(/(?=[LMC])/);
+                    // var pointArrays = commands.map(function (d) {
+                    //     var pointsArray = d.slice(1, d.length).split(',');
+                    //     var pairsArray = [];
+                    //     for (var i = 0; i < pointsArray.length; i += 2) {
+                    //         pairsArray.push([+pointsArray[i], +pointsArray[i + 1]]);
+                    //     }
+                    //     return pairsArray;
+                    // });
+                    // console.log(pointArrays)
+                    // console.log(d3.polygonContains(d3.polygonHull(pointArrays), [0, 1]))
+                    // let i = 0
+                    // let pointArr = [randX, randY]
+                    // console.log(d3.polygonContains(d3.polygonHull(pointArrays), [712.8, 498]))
+                    // while (!d3.polygonContains(pointArrays, pointArr) && i < 100) {
+                    //     randX = (Math.random() * box.width) + startingX
+                    //     randY = (Math.random() * box.width) + startingY
+                    //     console.log(randX, randY, i)
+                    //     pointArr = [randX, randY]
+                    //     i++
+                    // }
+                    // return {
+                    //     cx: randX,
+                    //     cy: randY,
+                    //     r: 5,
+                    //     id: `p-${locationName}`
+                    // }
+                })
+                .attr("cy", (d) => {
+                    return generateRandomXorYForDataTime(d, "1pm to 2pm?", false)
+                })
+                .attr("r", 5)
+                .attr("data-currentLocation", (d) => {
+                    return d["1pm to 2pm?"]
+                })
+                .attr("class", "studentDots")
+                .attr("id", (data, index) => index)
+                .style("fill", "lime")
+                .style("opacity", ".75")
+                .style("stroke", "black")
+            // .attr("r", 5)
+
+
+            d3.selectAll(".studentDots")
+                .transition()
+                .duration(1000)
+                .attr("cx", (d, index) => {
+                    const currentLocation = d["1pm to 2pm?"]
+                    const destinationName = d["2pm to 3pm?"]
+                    if (currentLocation !== destinationName) {
+                        return generateRandomXorYForDataTime(d, "2pm to 3pm?", true)
+                    } else {
+                        return document.getElementById(index).getAttribute("cx")
+                    }
+                })
+                .attr("cy", (d, index) => {
+                    const currentLocation = d["1pm to 2pm?"]
+                    const destinationName = d["2pm to 3pm?"]
+                    if (currentLocation !== destinationName) {
+                        return generateRandomXorYForDataTime(d, "2pm to 3pm?", false)
+                    } else {
+                        return document.getElementById(index).getAttribute("cy")
+                    }
+                })
+
+            const duration = 12000;
             let i = 0;
             timer = d3.timer((elapsed) => {
                 i = Math.floor(elapsed * 12 / duration)
