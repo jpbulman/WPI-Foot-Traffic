@@ -1,0 +1,71 @@
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="barchart.js"></script>
+<script>
+  //holds the result of the last showChart(). Should it be global? No. Is it? Yep.
+  function showChart() {
+    return barTime()
+  }
+
+  function showForm() {
+    document.getElementById("start").hidden = "true"
+    document.getElementById("next").style = "display";
+    showChart();
+  }
+
+  console.log(d3); // test if d3 is loaded
+  // Add an SVG
+
+  // Add Rectangles
+  var recContainer = d3.select(".chart").append("svg")
+    .attr("width", 700)
+    .attr("height", 700);
+  var rectangle = recContainer.append("rect")
+    .attr("x", 10)
+    .attr("y", 10)
+    .attr("width", 100)
+    .attr("height", 50)
+    .attr("fill", "#208737");
+  function Test(actual, guess, chartType) {
+    this.actual = actual;
+    this.guess = guess;
+    this.chartType = chartType;
+  }
+
+  let previous = showChart()
+  let listOfTests = [];
+
+  function nextFunction(actual, guess, chartType) {
+    previous = showChart(); //should be showChart() when I get that to work. TODO
+    document.getElementById("demo").innerHTML = "Next Clicked " + document.getElementById("answer").value;
+    listOfTests.push(new Test(previous[0], document.getElementById("answer").value, previous[1]));
+    console.log(listOfTests)
+  }
+
+  showChart()
+</script>
+
+<!DOCTYPE html>
+<html>
+
+<body>
+  <div class="chart">
+    <svg id="svg"></svg>
+  </div>
+
+
+  <form>
+    <input type="button" value="Start" id="start" onclick="showForm()">
+    <p id="desc"></p>
+    <p id="ans"></p> <input type="text" id="answer" style="display:none" name="fname" style="color: transparent">
+    <input type="button" value="Next" id="next" style="display:none"
+      onclick="nextFunction(35, document.getElementById('answer').value, 90)">
+    <input type="button" value="Check" id="check" style="display:none" onclick="displayFirstOfArray()">
+  </form>
+
+  <p id="inst"></p>
+  <p id="demo"></p>
+  <p id="first"></p>
+
+</body>
+
+</html>
