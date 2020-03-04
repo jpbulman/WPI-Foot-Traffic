@@ -254,7 +254,7 @@ g.then(function (result) {
                     })
             }
         }
-
+	let last_paused = 0;
         let interruptPlay = false
         function startDrawingMap() {
             document.getElementById("playButton").innerHTML = "&#10074;&#10074;"
@@ -264,16 +264,17 @@ g.then(function (result) {
             let i = 0;
             timer = d3.timer((elapsed) => {
                 // I think this should be 11?
-                i = Math.floor(elapsed * 11 / duration)
-
+		let paused_value = last_paused + elapsed
+                i = Math.floor(paused_value * 11 / duration )
                 const timeKey = getTimeKeyFromIndex(i)
                 const timeFormatted = `${timeKey.substring(0, 4)}`
                 document.getElementById("currentTimeText").innerHTML = `Current Time: ${timeFormatted}`
 
                 updateTheMap(buildings_info, i)
                 updateDots(i)
-                if (elapsed > duration || interruptPlay) {
-                    timer.stop();
+                if (paused_value > duration || interruptPlay) {
+                   last_paused = paused_value 
+		   timer.stop();
                 }
             });
         }
