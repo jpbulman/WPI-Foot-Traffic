@@ -238,18 +238,30 @@ g.then(function (result) {
             }
         }
 
-        const duration = 24000;
-        let i = 0;
-        timer = d3.timer((elapsed) => {
-            // I think this should be 11?
-            i = Math.floor(elapsed * 11 / duration)
-            updateTheMap(buildings_info, i)
-            updateDots(i)
-            if (elapsed > duration) {
-                timer.stop();
-            }
-        });
+        let interruptPlay = false
+        function startDrawingMap() {
+            document.getElementById("playButton").innerHTML = "&#9632;"
+            document.getElementById("playButton").onclick = stopDrawingMap
+            interruptPlay = false
+            const duration = 24000;
+            let i = 0;
+            timer = d3.timer((elapsed) => {
+                // I think this should be 11?
+                i = Math.floor(elapsed * 11 / duration)
+                updateTheMap(buildings_info, i)
+                updateDots(i)
+                if (elapsed > duration || interruptPlay) {
+                    timer.stop();
+                }
+            });
+        }
 
+        function stopDrawingMap() {
+            interruptPlay = true
+            document.getElementById("playButton").onclick = startDrawingMap
+            document.getElementById("playButton").innerHTML = "&#9658;"
+        }
 
+        document.getElementById("playButton").onclick = startDrawingMap
     })
 })

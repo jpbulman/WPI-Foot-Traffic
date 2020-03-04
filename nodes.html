@@ -12,6 +12,10 @@
         border-radius: 8px;
         pointer-events: none;
     }
+
+    body {
+        font-family: 'Roboto';
+    }
 </style>
 <meta charset="utf-8">
 <script src="https://d3js.org/d3.v5.min.js"></script>
@@ -20,9 +24,14 @@
 <script src="https://d3js.org/d3-selection-multi.v1.min.js"></script>
 
 <body>
-    <div id="svgContainer"></div>
-    <div id="textContent">
-        <p id="currentTimeText"></p>
+    <div id="contentWrapper" style="text-align: center;">
+        <h1 style="color: #AC2B37 ;">WPI's Campus on C20 Monday's</h1>
+        <h2>By: JP Bulman, Michael Clements, and DJ Alvarado</h2>
+        <div id="svgContainer" style="margin: auto; width: 50%;"></div>
+        <div id="textContent">
+            <button id="playButton">&#9658</button>
+            <p id="currentTimeText"></p>
+        </div>
     </div>
 </body>
 <script src="nodes.js"></script>
