@@ -1,11 +1,11 @@
 var width = 960,
-    height = 1160;
+    height = 750;
 
 var projection = d3.geoMercator()
     .scale(4000000)
     .translate([width / 2, height / 2])
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("body").select("#svgContainer").append("svg")
     .attr("width", width)
     .attr("height", height)
 
@@ -117,12 +117,15 @@ g.then(function (result) {
             }
         }
 
-        function generateRandomXorYForDataTime(data, timeKey, isX) {
-            let destinationName = data[timeKey]
+        function generateRandomXorYForDataTime(destinationName, isX) {
             if (destinationName === "Off campus or at home") {
                 destinationName = "West Street Lot"
-            } else if (destinationName === "Other or not listed" || destinationName === "Fuller Apartments" ||
-                destinationName === "Faraday") {
+            } else if (destinationName === "Fuller Apartments") {
+                // Close enough
+                destinationName = "Schussler Lot"
+            } else if (destinationName === "Stoddard Complex") {
+                destinationName = "Hackfield Lot"
+            } else if (destinationName === "Other or not listed" || destinationName === "Faraday" || destinationName === "Fountain") {
                 return 0
             }
             const box = d3.select("[id='" + destinationName + "']").node().getBBox()
@@ -142,6 +145,8 @@ g.then(function (result) {
             if (i === previousI + 1) {
                 const timeKey = getTimeKeyFromIndex(i)
                 previousI = i
+                const timeFormatted = `${timeKey.substring(0, 4)}`
+                document.getElementById("currentTimeText").innerHTML = `Current Time: ${timeFormatted}`
 
                 d3.selectAll(".studentDots")
                     .transition()
@@ -151,7 +156,7 @@ g.then(function (result) {
                         const destinationName = d[timeKey]
                         // Don't move if we're in the same building
                         if (currentLocation !== destinationName) {
-                            return generateRandomXorYForDataTime(d, timeKey, true)
+                            return generateRandomXorYForDataTime(destinationName, true)
                         } else {
                             return document.getElementById(index).getAttribute("cx")
                         }
@@ -160,19 +165,21 @@ g.then(function (result) {
                         const currentLocation = d[getTimeKeyFromIndex(i - 1)]
                         const destinationName = d[timeKey]
                         if (currentLocation !== destinationName) {
-                            return generateRandomXorYForDataTime(d, timeKey, false)
+                            return generateRandomXorYForDataTime(destinationName, false)
                         } else {
                             return document.getElementById(index).getAttribute("cy")
                         }
                     })
-            } else {
+            } else if (i === 0) {
+                document.getElementById("currentTimeText").innerHTML = "Current Time: 8am"
                 //Initial case where we draw the starting dots
                 svg.selectAll(".studentDots")
                     .data(data)
                     .enter()
                     .append("circle")
                     .attr("cx", (d) => {
-                        return generateRandomXorYForDataTime(d, getTimeKeyFromIndex(0), true)
+                        const destinationName = d[getTimeKeyFromIndex(0)]
+                        return generateRandomXorYForDataTime(destinationName, true)
                         // const startingY = box.y
                         // let randY = (Math.random() * box.width) + startingY
 
@@ -206,7 +213,8 @@ g.then(function (result) {
                         // }
                     })
                     .attr("cy", (d) => {
-                        return generateRandomXorYForDataTime(d, getTimeKeyFromIndex(0), false)
+                        const destinationName = d[getTimeKeyFromIndex(0)]
+                        return generateRandomXorYForDataTime(destinationName, false)
                     })
                     .attr("r", 5)
                     .attr("data-currentLocation", (d) => {
@@ -217,6 +225,16 @@ g.then(function (result) {
                     .style("fill", "lime")
                     .style("opacity", ".75")
                     .style("stroke", "black")
+                    .on("mouseover", function () {
+                        this.style.cursor = "pointer"
+                    })
+                    .on("click", function () {
+                        const currentFill = this.style.fill
+                        if (currentFill === "lime")
+                            this.style.fill = "red"
+                        else
+                            this.style.fill = "lime"
+                    })
             }
         }
 
