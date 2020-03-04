@@ -14,6 +14,12 @@ const toolTipDiv = d3.select("body")
     .attr("class", "tooltip")
     .style("opacity", 0)
 
+document.getElementById('overlayPeople').checked = true
+document.getElementById('overlayPeople').onclick = function () {
+    svg.selectAll(".studentDots")
+        .style("opacity", this.checked ? .75 : 0)
+}
+
 let g = d3.json("map.geojson", function (error, NYC_MapInfo) {
     // after loading geojson, use d3.geo.centroid to find out 
     // where you need to center your map
@@ -143,11 +149,8 @@ g.then(function (result) {
         let previousI = 0
         function updateDots(i) {
             if (i === previousI + 1) {
-                const timeKey = getTimeKeyFromIndex(i)
                 previousI = i
-                const timeFormatted = `${timeKey.substring(0, 4)}`
-                document.getElementById("currentTimeText").innerHTML = `Current Time: ${timeFormatted}`
-
+                const timeKey = getTimeKeyFromIndex(i)
                 d3.selectAll(".studentDots")
                     .transition()
                     .duration(2000)
@@ -248,6 +251,11 @@ g.then(function (result) {
             timer = d3.timer((elapsed) => {
                 // I think this should be 11?
                 i = Math.floor(elapsed * 11 / duration)
+
+                const timeKey = getTimeKeyFromIndex(i)
+                const timeFormatted = `${timeKey.substring(0, 4)}`
+                document.getElementById("currentTimeText").innerHTML = `Current Time: ${timeFormatted}`
+
                 updateTheMap(buildings_info, i)
                 updateDots(i)
                 if (elapsed > duration || interruptPlay) {
