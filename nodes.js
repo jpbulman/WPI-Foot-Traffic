@@ -20,6 +20,15 @@ document.getElementById('overlayPeople').onclick = function () {
         .style("opacity", this.checked ? .75 : 0)
 }
 
+document.getElementById("colorPicker").value = "#00FF00"
+
+document.getElementById('overlayHeat').checked = true
+
+document.getElementById("colorPicker").addEventListener("change", function () {
+    svg.selectAll(".studentDots")
+        .style("fill", event.target.value)
+}, false)
+
 let g = d3.json("map.geojson", function (error, NYC_MapInfo) {
     // after loading geojson, use d3.geo.centroid to find out 
     // where you need to center your map
@@ -131,7 +140,12 @@ g.then(function (result) {
                 destinationName = "Schussler Lot"
             } else if (destinationName === "Stoddard Complex") {
                 destinationName = "Hackfield Lot"
-            } else if (destinationName === "Other or not listed" || destinationName === "Faraday" || destinationName === "Fountain") {
+            } else if (destinationName === "Fountain") {
+                const box = d3.select("[id='" + "Higgins Laboratories" + "']").node().getBBox()
+                const startingVal = isX ? box.x : box.y
+                console.log(111)
+                return startingVal + (isX ? 10 : -10)
+            } else if (destinationName === "Other or not listed" || destinationName === "Faraday") {
                 return 0
             }
             const box = d3.select("[id='" + destinationName + "']").node().getBBox()
@@ -225,7 +239,7 @@ g.then(function (result) {
                     })
                     .attr("class", "studentDots")
                     .attr("id", (data, index) => index)
-                    .style("fill", "lime")
+                    .style("fill", document.getElementById("colorPicker").value)
                     .style("opacity", ".75")
                     .style("stroke", "black")
                     .on("mouseover", function () {
@@ -233,17 +247,17 @@ g.then(function (result) {
                     })
                     .on("click", function () {
                         const currentFill = this.style.fill
-                        if (currentFill === "lime")
-                            this.style.fill = "red"
+                        if (currentFill === "red")
+                            this.style.fill = document.getElementById("colorPicker").value
                         else
-                            this.style.fill = "lime"
+                            this.style.fill = "red"
                     })
             }
         }
 
         let interruptPlay = false
         function startDrawingMap() {
-            document.getElementById("playButton").innerHTML = "&#9632;"
+            document.getElementById("playButton").innerHTML = "&#10074;&#10074;"
             document.getElementById("playButton").onclick = stopDrawingMap
             interruptPlay = false
             const duration = 24000;
