@@ -337,7 +337,6 @@ d3.csv("responses.csv").then((data) => {
         .attr("transform",
             "translate(" + margin.left + "," + margin.top + ")");
 
-
     // Labels of row and columns
     let times = Object.keys(data[0])
     times = times.filter((a) => a !== "Timestamp" && !a.includes("Other"))
@@ -384,9 +383,8 @@ d3.csv("responses.csv").then((data) => {
         .style("width", width)
     // Build color scale
     var myColor = d3.scaleLinear()
-        .range(["white", "steelblue"])
+        .range(["WhiteSmoke", "steelblue"])
         .domain([1, 5])
-
 
     let heat = d3.entries(locationAndTimeMap)
     let heatmap = [];
@@ -420,7 +418,7 @@ d3.csv("responses.csv").then((data) => {
                 .style("opacity", 1)
                 .attr('x', 20)
                 .attr('y', 500)
-                .text(d[2] + (d[2] === 1 ? " Respondant " : " Respondants ") + (d[2] === 1 ? "was " : "were ") + "in " + d[0] + " at " + d[1]);
+                .text(d[2] + (d[2] === 1 ? " Respondent " : " Respondents ") + (d[2] === 1 ? "was " : "were ") + "in " + d[0] + " at " + d[1]);
         })
         .on("mouseout", function () {
             // Remove the info text on mouse out.
