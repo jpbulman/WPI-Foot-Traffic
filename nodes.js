@@ -28,18 +28,18 @@ document.getElementById('overlayHeat').checked = true
 document.getElementById('overlayHeat').onclick = function () {
     keepHeatMapOn = !keepHeatMapOn
 }
-
 document.getElementById("colorPicker").addEventListener("change", function () {
     svg.selectAll(".studentDots")
         .style("fill", event.target.value)
 }, false)
 
+	let center = []
 let g = d3.json("map.geojson", function (error, NYC_MapInfo) {
     // after loading geojson, use d3.geo.centroid to find out 
     // where you need to center your map
-    var center = d3.geo.centroid(NYC_MapInfo);
+    center = d3.geo.centroid(NYC_MapInfo);
     projection.center(center);
-
+    console.log("let g = ", center)
     // now you can create new path function with 
     // correctly centered projection
     var path = d3.geo.path().projection(projection);
@@ -50,12 +50,21 @@ let g = d3.json("map.geojson", function (error, NYC_MapInfo) {
         .enter()
         .append("path")
         .attr("d", path);
-});
-g.then(function (result) {
-    var center = d3.geoCentroid(result);
-    console.log(center)
-    projection.center(center);
 
+		
+});
+
+let h = d3.json("map2.geojson", function(error, map){
+        var path = d3.geo.path().projection(projection)
+	console.log("let h = [center]", center)
+});
+
+Promise.all([g,h]).then(function (values) {
+	let result = values[0]
+	let resultb = values[1]
+    center = d3.geoCentroid(result);
+	console.log("promises all center", center)
+	projection.center(center)
     // now you can create new path function with 
     // correctly centered projection
     var path = d3.geoPath().projection(projection);
@@ -63,7 +72,7 @@ g.then(function (result) {
     // and finally draw the actual polygons
     svg.selectAll("path")
         .data(result.features)
-        .enter()
+	.enter()
         .append("path")
         .attr("d", path)
         .attr("id", function (d) { return d.properties['name']; })
@@ -296,6 +305,7 @@ g.then(function (result) {
 
         document.getElementById("playButton").onclick = startDrawingMap
     })
+	roads(resultb, center)
 })
 
 /*
@@ -433,3 +443,19 @@ d3.csv("responses.csv").then((data) => {
                 .style("top", (d3.event.pageY - 50) + "px")
         })
 })
+
+
+function roads(result, center) {
+	console.log("center", center)
+        var path = d3.geoPath().projection(projection)
+        svg.selectAll("g")
+	.append("g")
+        .data(result.features)
+        .enter()
+        .append("path")
+        .attr("d",function(d){return path(d)})
+        .attr("stroke", "black")
+        .attr("fill","none")
+}
+
+
