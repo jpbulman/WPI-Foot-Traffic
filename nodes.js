@@ -334,8 +334,8 @@ d3.csv("responses.csv").then((data) => {
         }
     }
     // set the dimensions and margins of the graph
-    const margin = { top: 30, right: 30, bottom: 30, left: 90 },
-        width = 450 - margin.left - margin.right,
+    const margin = { top: 30, right: 30, bottom: 30, left: 140 },
+        width = 480 - margin.left - margin.right,
         height = 712.5 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
