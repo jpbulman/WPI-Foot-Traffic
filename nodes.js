@@ -420,7 +420,7 @@ d3.csv("responses.csv").then((data) => {
                 .style("opacity", 1)
                 .attr('x', 20)
                 .attr('y', 500)
-                .text(d[2] + " Respondants were in " + d[0] + " at " + d[1]);
+                .text(d[2] + (d[2] === 1 ? " Respondant " : " Respondants ") + (d[2] === 1 ? "was " : "were ") + "in " + d[0] + " at " + d[1]);
         })
         .on("mouseout", function () {
             // Remove the info text on mouse out.
