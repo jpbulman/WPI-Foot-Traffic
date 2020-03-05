@@ -14,6 +14,8 @@ const toolTipDiv = d3.select("body")
     .attr("class", "tooltip")
     .style("opacity", 0)
 
+let keepHeatMapOn = true
+
 document.getElementById('overlayPeople').checked = true
 document.getElementById('overlayPeople').onclick = function () {
     svg.selectAll(".studentDots")
@@ -23,6 +25,9 @@ document.getElementById('overlayPeople').onclick = function () {
 document.getElementById("colorPicker").value = "#00FF00"
 
 document.getElementById('overlayHeat').checked = true
+document.getElementById('overlayHeat').onclick = function () {
+    keepHeatMapOn = !keepHeatMapOn
+}
 
 document.getElementById("colorPicker").addEventListener("change", function () {
     svg.selectAll(".studentDots")
@@ -110,6 +115,7 @@ g.then(function (result) {
                 }
             }
         }
+
         buildings_info = []
         for (key in locationAndTimeMap) {
             time_quant_pair = []
@@ -122,11 +128,13 @@ g.then(function (result) {
             }
             buildings_info.push([key, time_quant_pair])
         }
+
         function updateTheMap(buildings_info, i) {
             for (building in buildings_info) {
                 try {
+                    const color = keepHeatMapOn ? myColor(buildings_info[building][1][i][1]) : "#00001f4f"
                     d3.selectAll("[id='" + buildings_info[building][0] + "']")
-                        .style("fill", myColor(buildings_info[building][1][i][1]))
+                        .style("fill", color)
                 } catch {
                 }
             }
@@ -143,9 +151,10 @@ g.then(function (result) {
             } else if (destinationName === "Fountain") {
                 const box = d3.select("[id='" + "Higgins Laboratories" + "']").node().getBBox()
                 const startingVal = isX ? box.x : box.y
-                console.log(111)
                 return startingVal + (isX ? 10 : -10)
-            } else if (destinationName === "Other or not listed" || destinationName === "Faraday") {
+            } else if (destinationName === "Faraday") {
+                destinationName = "Farady"
+            } else if (destinationName === "Other or not listed") {
                 return 0
             }
             const box = d3.select("[id='" + destinationName + "']").node().getBBox()
@@ -254,7 +263,7 @@ g.then(function (result) {
                     })
             }
         }
-	let last_paused = 0;
+        let last_paused = 0;
         let interruptPlay = false
         function startDrawingMap() {
             document.getElementById("playButton").innerHTML = "&#10074;&#10074;"
@@ -264,8 +273,8 @@ g.then(function (result) {
             let i = 0;
             timer = d3.timer((elapsed) => {
                 // I think this should be 11?
-		let paused_value = last_paused + elapsed
-                i = Math.floor(paused_value  * 11 / (duration - 200))
+                let paused_value = last_paused + elapsed
+                i = Math.floor(paused_value * 11 / duration)
                 const timeKey = getTimeKeyFromIndex(i)
                 const timeFormatted = `${timeKey.substring(0, 4)}`
                 document.getElementById("currentTimeText").innerHTML = `Current Time: ${timeFormatted}`
@@ -273,8 +282,8 @@ g.then(function (result) {
                 updateTheMap(buildings_info, i)
                 updateDots(i)
                 if (paused_value > duration || interruptPlay) {
-                   last_paused = paused_value 
-		   timer.stop();
+                    last_paused = paused_value
+                    timer.stop();
                 }
             });
         }
@@ -287,4 +296,142 @@ g.then(function (result) {
 
         document.getElementById("playButton").onclick = startDrawingMap
     })
+})
+
+/*
+ * BEGIN HEATMAP CODE 
+ */
+d3.csv("responses.csv").then((data) => {
+    let locationAndTimeMap = {}
+    for (let i = 0; i < data.length; i++) {
+        const currentResponse = data[i]
+        for (key in currentResponse) {
+            if (key.includes("Other") || key === "Timestamp") {
+                continue
+            }
+            const currentBuilding = currentResponse[key]
+            if (currentBuilding in locationAndTimeMap) {
+                if (key in locationAndTimeMap[currentBuilding]) {
+                    locationAndTimeMap[currentBuilding][key] = locationAndTimeMap[currentBuilding][key] + 1
+                } else {
+                    locationAndTimeMap[currentBuilding][key] = 1
+                }
+            } else {
+                const toMake = {}
+                toMake[key] = 1
+                locationAndTimeMap[currentBuilding] = toMake
+            }
+        }
+    }
+    // set the dimensions and margins of the graph
+    const margin = { top: 30, right: 30, bottom: 30, left: 90 },
+        width = 450 - margin.left - margin.right,
+        height = 712.5 - margin.top - margin.bottom;
+
+    // append the svg object to the body of the page
+    const svg = d3.select("#my_dataviz")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+
+
+    // Labels of row and columns
+    let times = Object.keys(data[0])
+    times = times.filter((a) => a !== "Timestamp" && !a.includes("Other"))
+    times.forEach((d, i) => {
+        let formattedString = d.replace("?", "")
+        formattedString = formattedString.split("to")[0]
+        if (i === 0) {
+            formattedString = "8am"
+        }
+        times[i] = formattedString
+    })
+    const locations = Object.keys(locationAndTimeMap)
+    // Build X scales and axis:
+    var x = d3.scaleBand()
+        .range([0, width])
+        .domain(times)
+        .padding(0.01);
+    svg.append("g")
+        .attr("transform", `translate(0, ${height})`)
+        .call(d3.axisBottom(x))
+    svg.selectAll("text")
+        .attr("transform", "rotate(-90)")
+        .attr("dx", "-2em")
+        .attr("dy", "-.5em")
+
+    // Build X scales and axis:
+    var y = d3.scaleBand()
+        .range([height, 0])
+        .domain(locations)
+        .padding(0.01);
+    svg.append("g")
+        .call(d3.axisLeft(y));
+    //Tooltip
+    var Tooltip = d3.select("#tooltipHeatmap")
+        .append("div")
+        .style("opacity", 0)
+        .attr("class", "tooltipHeatmap")
+        .style("background-color", "white")
+        .style("border", "solid")
+        .style("border-width", "2px")
+        .style("border-radius", "5px")
+        .style("padding", "5px")
+        .style("position", "absolute")
+        .style("width", width)
+    // Build color scale
+    var myColor = d3.scaleLinear()
+        .range(["white", "steelblue"])
+        .domain([1, 5])
+
+
+    let heat = d3.entries(locationAndTimeMap)
+    let heatmap = [];
+    for (h in heat) {
+        for (v in heat[h].value) {
+            heatmap.push([heat[h].key, v, heat[h].value[v]])
+        }
+    }
+    for (h in heatmap) {
+        let formatTime = heatmap[h][1].replace("?", "")
+        formatTime = formatTime.split("to")[0]
+        if (formatTime[0] === 'W') {
+            formatTime = "8am"
+        }
+        heatmap[h][1] = formatTime;
+    }
+    svg.selectAll("g")
+        .data(heatmap, function (d) { return d; })
+        .enter()
+        .append("rect")
+        .attr("x", function (d) { return x(d[1]) })
+        .attr("y", function (d) { return y(d[0]) })
+        .attr("width", x.bandwidth())
+        .attr("height", y.bandwidth())
+        .style("fill", d => myColor(d[2]))
+        .on("mouseover", function (d) {
+            var g = d3.select(this);
+            g.style("stroke", "black")
+            Tooltip
+                .classed('info', true)
+                .style("opacity", 1)
+                .attr('x', 20)
+                .attr('y', 500)
+                .text(d[2] + " Respondants were in " + d[0] + " at " + d[1]);
+        })
+        .on("mouseout", function () {
+            // Remove the info text on mouse out.
+            let g = d3.select(this)
+            g.style("stroke", "none")
+            Tooltip.text("");
+            Tooltip.style("opacity", 0)
+        })
+        .on("mousemove", function (d) {
+            Tooltip
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 50) + "px")
+        })
 })
