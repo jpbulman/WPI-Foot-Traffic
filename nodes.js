@@ -33,7 +33,7 @@ document.getElementById("colorPicker").addEventListener("change", function () {
         .style("fill", event.target.value)
 }, false)
 
-	let center = []
+let center = []
 let g = d3.json("map.geojson", function (error, NYC_MapInfo) {
     // after loading geojson, use d3.geo.centroid to find out 
     // where you need to center your map
@@ -50,21 +50,19 @@ let g = d3.json("map.geojson", function (error, NYC_MapInfo) {
         .enter()
         .append("path")
         .attr("d", path);
-
-		
 });
 
-let h = d3.json("map2.geojson", function(error, map){
-        var path = d3.geo.path().projection(projection)
-	console.log("let h = [center]", center)
+let h = d3.json("map2.geojson", function (error, map) {
+    var path = d3.geo.path().projection(projection)
+    console.log("let h = [center]", center)
 });
 
-Promise.all([g,h]).then(function (values) {
-	let result = values[0]
-	let resultb = values[1]
+Promise.all([g, h]).then(function (values) {
+    let result = values[0]
+    let resultb = values[1]
     center = d3.geoCentroid(result);
-	console.log("promises all center", center)
-	projection.center(center)
+    console.log("promises all center", center)
+    projection.center(center)
     // now you can create new path function with 
     // correctly centered projection
     var path = d3.geoPath().projection(projection);
@@ -72,7 +70,7 @@ Promise.all([g,h]).then(function (values) {
     // and finally draw the actual polygons
     svg.selectAll("path")
         .data(result.features)
-	.enter()
+        .enter()
         .append("path")
         .attr("d", path)
         .attr("id", function (d) { return d.properties['name']; })
@@ -84,7 +82,7 @@ Promise.all([g,h]).then(function (values) {
                 toolTipDiv.transition()
                     .duration(200)
                     .style("opacity", .9)
-                toolTipDiv.html(`${buildingName}`)
+                toolTipDiv.html(`${buildingName === "West Street Lot" ? "Off Campus or at Home" : buildingName}`)
                     .style("left", (d3.event.pageX) + "px")
                     .style("top", (d3.event.pageY - 28) + "px");
             }
@@ -215,37 +213,6 @@ Promise.all([g,h]).then(function (values) {
                     .attr("cx", (d) => {
                         const destinationName = d[getTimeKeyFromIndex(0)]
                         return generateRandomXorYForDataTime(destinationName, true)
-                        // const startingY = box.y
-                        // let randY = (Math.random() * box.width) + startingY
-
-                        // const str = document.getElementById(locationName).getAttribute("d")
-                        // var commands = str.split(/(?=[LMC])/);
-                        // var pointArrays = commands.map(function (d) {
-                        //     var pointsArray = d.slice(1, d.length).split(',');
-                        //     var pairsArray = [];
-                        //     for (var i = 0; i < pointsArray.length; i += 2) {
-                        //         pairsArray.push([+pointsArray[i], +pointsArray[i + 1]]);
-                        //     }
-                        //     return pairsArray;
-                        // });
-                        // console.log(pointArrays)
-                        // console.log(d3.polygonContains(d3.polygonHull(pointArrays), [0, 1]))
-                        // let i = 0
-                        // let pointArr = [randX, randY]
-                        // console.log(d3.polygonContains(d3.polygonHull(pointArrays), [712.8, 498]))
-                        // while (!d3.polygonContains(pointArrays, pointArr) && i < 100) {
-                        //     randX = (Math.random() * box.width) + startingX
-                        //     randY = (Math.random() * box.width) + startingY
-                        //     console.log(randX, randY, i)
-                        //     pointArr = [randX, randY]
-                        //     i++
-                        // }
-                        // return {
-                        //     cx: randX,
-                        //     cy: randY,
-                        //     r: 5,
-                        //     id: `p-${locationName}`
-                        // }
                     })
                     .attr("cy", (d) => {
                         const destinationName = d[getTimeKeyFromIndex(0)]
@@ -305,7 +272,7 @@ Promise.all([g,h]).then(function (values) {
 
         document.getElementById("playButton").onclick = startDrawingMap
     })
-	roads(resultb, center)
+    roads(resultb, center)
 })
 
 /*
@@ -446,16 +413,16 @@ d3.csv("responses.csv").then((data) => {
 
 
 function roads(result, center) {
-	console.log("center", center)
-        var path = d3.geoPath().projection(projection)
-        svg.selectAll("g")
-	.append("g")
+    console.log("center", center)
+    var path = d3.geoPath().projection(projection)
+    svg.selectAll("g")
+        .append("g")
         .data(result.features)
         .enter()
         .append("path")
-        .attr("d",function(d){return path(d)})
+        .attr("d", function (d) { return path(d) })
         .attr("stroke", "black")
-        .attr("fill","none")
+        .attr("fill", "none")
 }
 
 
