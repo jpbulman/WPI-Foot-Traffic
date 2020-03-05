@@ -4,7 +4,7 @@ text = ''.join([i for i in text]).replace("Atwater Kent", "Atwater Kent Laborato
 text = ''.join([i for i in text]).replace("Salisbury Hall", "Salisbury Laboratories").replace("Salisbury Labs", "Salisbury Laboratories")
 text = ''.join([i for i in text]).replace("Alden  Hall", "Alden Memorial").replace("East", "East Hall")
 text = ''.join([i for i in text]).replace("Washburn", "Washburn Shops and Stoddard Laboratories").replace("WPI Sports and Rec Center", "WPI Sports and Recreation Center")
-text = ''.join([i for i in text]).replace("Founder's Hall", "Founders Hall")
+text = ''.join([i for i in text]).replace("Founder's Hall", "Founders Hall").replace("Faraday", "Farady")
 x = open("output.csv","w")
 x.writelines(text)
 x.close()

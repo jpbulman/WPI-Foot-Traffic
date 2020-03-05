@@ -14,6 +14,8 @@ const toolTipDiv = d3.select("body")
     .attr("class", "tooltip")
     .style("opacity", 0)
 
+let keepHeatMapOn = true
+
 document.getElementById('overlayPeople').checked = true
 document.getElementById('overlayPeople').onclick = function () {
     svg.selectAll(".studentDots")
@@ -23,6 +25,9 @@ document.getElementById('overlayPeople').onclick = function () {
 document.getElementById("colorPicker").value = "#00FF00"
 
 document.getElementById('overlayHeat').checked = true
+document.getElementById('overlayHeat').onclick = function () {
+    keepHeatMapOn = !keepHeatMapOn
+}
 
 document.getElementById("colorPicker").addEventListener("change", function () {
     svg.selectAll(".studentDots")
@@ -110,6 +115,7 @@ g.then(function (result) {
                 }
             }
         }
+
         buildings_info = []
         for (key in locationAndTimeMap) {
             time_quant_pair = []
@@ -122,11 +128,13 @@ g.then(function (result) {
             }
             buildings_info.push([key, time_quant_pair])
         }
+
         function updateTheMap(buildings_info, i) {
             for (building in buildings_info) {
                 try {
+                    const color = keepHeatMapOn ? myColor(buildings_info[building][1][i][1]) : "#00001f4f"
                     d3.selectAll("[id='" + buildings_info[building][0] + "']")
-                        .style("fill", myColor(buildings_info[building][1][i][1]))
+                        .style("fill", color)
                 } catch {
                 }
             }
@@ -145,7 +153,9 @@ g.then(function (result) {
                 const startingVal = isX ? box.x : box.y
                 console.log(111)
                 return startingVal + (isX ? 10 : -10)
-            } else if (destinationName === "Other or not listed" || destinationName === "Faraday") {
+            } else if (destinationName === "Faraday") {
+                destinationName = "Farady"
+            } else if (destinationName === "Other or not listed") {
                 return 0
             }
             const box = d3.select("[id='" + destinationName + "']").node().getBBox()
@@ -254,7 +264,7 @@ g.then(function (result) {
                     })
             }
         }
-	let last_paused = 0;
+        let last_paused = 0;
         let interruptPlay = false
         function startDrawingMap() {
             document.getElementById("playButton").innerHTML = "&#10074;&#10074;"
@@ -264,8 +274,8 @@ g.then(function (result) {
             let i = 0;
             timer = d3.timer((elapsed) => {
                 // I think this should be 11?
-		let paused_value = last_paused + elapsed
-                i = Math.floor(paused_value * 11 / duration )
+                let paused_value = last_paused + elapsed
+                i = Math.floor(paused_value * 11 / duration)
                 const timeKey = getTimeKeyFromIndex(i)
                 const timeFormatted = `${timeKey.substring(0, 4)}`
                 document.getElementById("currentTimeText").innerHTML = `Current Time: ${timeFormatted}`
@@ -273,8 +283,8 @@ g.then(function (result) {
                 updateTheMap(buildings_info, i)
                 updateDots(i)
                 if (paused_value > duration || interruptPlay) {
-                   last_paused = paused_value 
-		   timer.stop();
+                    last_paused = paused_value
+                    timer.stop();
                 }
             });
         }

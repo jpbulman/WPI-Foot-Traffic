@@ -27,18 +27,24 @@
     <div id="contentWrapper" style="text-align: center;">
         <h1 style="color: #AC2B37 ;">WPI's Campus on C20 Monday's</h1>
         <h2>By: JP Bulman, Michael Clements, and DJ Alvarado</h2>
-        <div id="svgContainer" style="margin: auto; width: 50%;"></div>
+        <div id="mainContentWrapper">
+            <div style="display: inline-block;" id="svgContainer" style="margin: auto; width: 50%;"></div>
+            <div style="display: inline-block; position: absolute; top: 50%;" id="sidebarWrapper">
+                <div>
+                    <input type="checkbox" id="overlayPeople">
+                    <label for="overlayPeople">Show dots</label>
+                </div>
+                <input type="checkbox" id="overlayHeat">
+                <label for="overlayPeople">Show heatmap</label>
+                <div>
+                    <label for="colorPicker">People Color: </label>
+                    <input type="color" id="colorPicker">
+                </div>
+            </div>
+        </div>
         <div id="textContent">
             <button id="playButton">&#9658</button>
             <p id="currentTimeText">Current Time: </p>
-            <input type="checkbox" id="overlayPeople">
-            <label for="overlayPeople">Show dots</label>
-            <input type="checkbox" id="overlayHeat">
-            <label for="overlayPeople">Show heatmap</label>
-            <div>
-                <label for="colorPicker">People Color: </label>
-                <input type="color" id="colorPicker">
-            </div>
         </div>
     </div>
 </body>
