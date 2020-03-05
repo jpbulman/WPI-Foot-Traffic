@@ -265,7 +265,7 @@ g.then(function (result) {
             timer = d3.timer((elapsed) => {
                 // I think this should be 11?
 		let paused_value = last_paused + elapsed
-                i = Math.floor(paused_value * 11 / duration )
+                i = Math.floor(paused_value  * 11 / (duration - 200))
                 const timeKey = getTimeKeyFromIndex(i)
                 const timeFormatted = `${timeKey.substring(0, 4)}`
                 document.getElementById("currentTimeText").innerHTML = `Current Time: ${timeFormatted}`
