@@ -1,3 +1,7 @@
+# Many of the buildings in Open Street Map have different names
+# than the names we had in the survey responses, so this script
+# cleans the names so that they match. The original responses are in
+# 'responses.csv' and the cleaned ones are in 'output.csv'
 text = open("responses.csv", "r")
 text = ''.join([i for i in text]).replace("Rubin Campus Center", "Campus Center").replace("Higgins Labs", "Higgins Laboratories").replace("Fuller Labs", "Fuller Laboratories")
 text = ''.join([i for i in text]).replace("Atwater Kent", "Atwater Kent Laboratories").replace("Gordon Library", "George C. Gordon Library")
