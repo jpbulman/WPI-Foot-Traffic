@@ -48,20 +48,25 @@
                     </div>
                 </div>
             </div>
-            <div>
+            <div style="margin-bottom: 5em;">
                 <button id="playButton">&#9658</button>
-                <p id="currentTimeText">Current Time: </p>
+                <p id="currentTimeText">Current Time: Animation not Started</p>
             </div>
 
-            <div id="my_dataviz"></div>
+            <h2>Heatmap of Students on Campus</h2>
+            <div style="margin-bottom: 5em;" id="my_dataviz"></div>
 
+            <h2>Population Chart for all of Campus at a Given Time</h2>
             <div id="barChartSVGDiv"></div>
             <div>
                 <p>On Campus Locations</p>
             </div>
             <div>
-                <select id="timePicker"></select>
+                <select style="margin-bottom: 5em;" id="timePicker"></select>
             </div>
+
+            <h2>Individual Population Charts Throughout the day</h2>
+            <div id="miniBarChartSVGDiv"></div>
         </div>
 
         <div>
@@ -71,8 +76,8 @@
 
             <h2 id="How-To">How To</h2>
             <h3>Things to know</h3>
-            <p>If an individual marked themselves as 'off campus or at home' for a certain time, their dot is
-                moved to the West Street lot.
+            <p>If an individual marked themselves as 'Off campus or at home' for a certain time, their dot is
+                moved to the West Street lot. If someone marked 'Other or not listed', their dot flies to (0, 0).
             </p>
             <h3>Using</h3>
             <p>To start the campus animations, simply press the play button. After you have clicked the play button, you
@@ -88,7 +93,7 @@
             </p>
 
             <h2 id="Sources">Sources</h2>
-            <p>The source code and the data set can be found in the GitHub <a
+            <p>The source code, data set, and more information can be found on the GitHub <a
                     href="https://github.com/jpbulman/final">page</a> for this project.</p>
         </div>
     </div>
@@ -97,3 +102,4 @@
 </body>
 <script src="nodes.js"></script>
 <script src="large.js"></script>
+<script src="smallBC.js"></script>

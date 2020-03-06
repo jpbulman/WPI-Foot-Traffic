@@ -45,13 +45,6 @@ d3.csv('output.csv').then((rows) => {
             }
         })
 
-        let max = buildingsValueMap[Object.keys(buildingsValueMap)[0]]
-        for (key in buildingsValueMap) {
-            if (buildingsValueMap[key] > max) {
-                max = buildingsValueMap[key]
-            }
-        }
-
         var sortable = [];
         for (var vehicle in buildingsValueMap) {
             sortable.push([vehicle, buildingsValueMap[vehicle]]);
