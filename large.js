@@ -68,11 +68,7 @@ d3.csv('output.csv').then((rows) => {
 
         g.append("g")
             .attr("transform", "translate(0," + heightOfMajorBarChart + ")")
-            .call(d3.axisBottom(barChartXScale))
-        // .attr("text-anchor", "end")
-        // .text("Peopl")
-
-        d3.selectAll("text")
+            .call(d3.axisBottom(barChartXScale)).selectAll("text")
             .attr("transform", "rotate(-10)")
             .attr("dy", "1.5em")
 
@@ -82,7 +78,7 @@ d3.csv('output.csv').then((rows) => {
             .attr("fill", "#000")
             .attr("transform", "rotate(-90)")
             .attr("y", 6)
-            .attr("dy", "-5em")
+            .attr("dy", "-3.5em")
             .attr("text-anchor", "end")
             .text("People");
 
