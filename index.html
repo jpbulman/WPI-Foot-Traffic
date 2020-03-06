@@ -25,7 +25,7 @@
 
 <body>
     <div id="contentWrapper">
-        <div style="text-align: center;">
+        <div id="chartContent" style="text-align: center;">
             <div style="margin-bottom: 2em;">
                 <h1 style="color: #AC2B37 ;">WPI's Campus on C20 Mondays</h1>
                 <h2>By: JP Bulman, Michael Clements, and DJ Alvarado</h2>
@@ -54,6 +54,12 @@
             </div>
 
             <div id="my_dataviz"></div>
+
+            <div id="barChartSVGDiv"></div>
+
+            <div>
+                <select id="timePicker"></select>
+            </div>
         </div>
 
         <div>
@@ -88,3 +94,4 @@
     <div id="tooltipHeatmap"></div>
 </body>
 <script src="nodes.js"></script>
+<script src="large.js"></script>
